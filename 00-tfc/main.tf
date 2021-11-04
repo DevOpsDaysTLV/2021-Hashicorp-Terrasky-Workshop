@@ -26,6 +26,14 @@ resource "tfe_workspace" "hvn" {
   global_remote_state = true
 }
 
+resource "tfe_variable" "organization_name_for_hvn" {
+  key          = "tfe_organization_name"
+  value        = var.tfe_organization_name
+  category     = "terraform"
+  workspace_id = tfe_workspace.hvn.id
+  description  = "Org Name"
+}
+
 resource "tfe_workspace" "eks" {
   name         = "EKS"
   organization = var.tfe_organization_name
@@ -35,4 +43,12 @@ resource "tfe_workspace" "eks" {
     oauth_token_id = var.oauth_token_id
   }
   working_directory = "01-vpc"
+}
+
+resource "tfe_variable" "organization_name_for_eks" {
+  key          = "tfe_organization_name"
+  value        = var.tfe_organization_name
+  category     = "terraform"
+  workspace_id = tfe_workspace.eks.id
+  description  = "Org Name"
 }
