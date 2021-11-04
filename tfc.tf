@@ -35,3 +35,11 @@ resource "tfe_variable" "github_username" {
   workspace_id = tfe_workspace.tfc_config.id
   description  = "GitHub Username"
 }
+
+resource "tfe_variable" "tfe_token" {
+  key          = "TFE_TOKEN"
+  category     = "env"
+  workspace_id = tfe_workspace.tfc_config.id
+  description  = "TFC Token"
+  sensitive    = true
+}
