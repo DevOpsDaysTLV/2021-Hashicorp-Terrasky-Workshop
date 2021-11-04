@@ -52,6 +52,6 @@ resource "tfe_variable" "organization_name_for_eks" {
   workspace_id = tfe_workspace.eks.id
   description  = "Org Name"
   depends_on = [
-    tfe_workspace.eks.id
+    tfe_workspace.eks
   ]
 }
