@@ -5,13 +5,8 @@ resource "hcp_hvn" "demo_hcp_hvn" {
 }
 
 data "terraform_remote_state" "vpc" {
-  backend = "remote"
-  config = {
-    organization = "bandrei_hc"
-    workspaces = {
-      name = "01-VPC"
-    }
-  }
+  backend   = "remote"
+  workspace = "VPC"
 }
 
 
