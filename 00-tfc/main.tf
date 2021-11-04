@@ -34,6 +34,11 @@ resource "tfe_variable" "organization_name_for_hvn" {
   description  = "Org Name"
 }
 
+resource "tfe_run_trigger" "test" {
+  workspace_id  = tfe_workspace.hvn.id
+  sourceable_id = tfe_workspace.vpc.id
+}
+
 resource "tfe_workspace" "eks" {
   name         = "EKS"
   organization = var.tfe_organization_name
@@ -54,4 +59,9 @@ resource "tfe_variable" "organization_name_for_eks" {
   depends_on = [
     tfe_workspace.eks
   ]
+}
+
+resource "tfe_run_trigger" "test" {
+  workspace_id  = tfe_workspace.eks.id
+  sourceable_id = tfe_workspace.vpc.id
 }
