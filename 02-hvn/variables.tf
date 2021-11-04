@@ -3,3 +3,7 @@ variable "region" {
   type        = string
   default     = "eu-central-1"
 }
+
+variable "tfe_organization_name" {
+  type = string
+}
