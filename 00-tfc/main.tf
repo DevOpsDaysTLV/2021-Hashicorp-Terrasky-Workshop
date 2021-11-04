@@ -20,7 +20,10 @@ resource "tfe_workspace" "hvn" {
     identifier     = "${var.github_username}/2021-Hashicorp-Terrasky-Workshop"
     oauth_token_id = var.oauth_token_id
   }
-  working_directory = "01-hvn"
+  working_directory   = "02-hvn"
+  execution_mode      = "remote"
+  auto_apply          = true
+  global_remote_state = true
 }
 
 resource "tfe_workspace" "eks" {

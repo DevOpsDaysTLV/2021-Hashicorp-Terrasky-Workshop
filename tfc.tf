@@ -20,7 +20,7 @@ resource "tfe_variable" "organization_name" {
   description  = "Org Name"
 }
 
-resource "tfe_variable" "organization_name" {
+resource "tfe_variable" "oauth_token_id" {
   key          = "oauth_token_id"
   value        = var.oauth_token_id
   category     = "terraform"
