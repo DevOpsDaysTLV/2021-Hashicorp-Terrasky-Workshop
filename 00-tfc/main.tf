@@ -1,15 +1,17 @@
 resource "tfe_workspace" "vpc" {
-  name                = "VPC"
-  organization        = var.tfe_organization_name
-  tag_names           = ["devopsdaystlv2021"]
-  execution_mode      = "remote"
-  auto_apply          = true
-  global_remote_state = true
+  name         = "VPC"
+  organization = var.tfe_organization_name
+  tag_names    = ["devopsdaystlv2021"]
   vcs_repo {
     identifier     = "${var.github_username}/2021-Hashicorp-Terrasky-Workshop"
     oauth_token_id = var.oauth_token_id
   }
-  working_directory = "01-vpc"
+  working_directory   = "01-vpc"
+  execution_mode      = "remote"
+  auto_apply          = true
+  global_remote_state = true
+  queue_all_runs      = false
+
 }
 
 resource "tfe_workspace" "hvn" {
@@ -24,6 +26,7 @@ resource "tfe_workspace" "hvn" {
   execution_mode      = "remote"
   auto_apply          = true
   global_remote_state = true
+  queue_all_runs      = false
 }
 
 resource "tfe_variable" "organization_name_for_hvn" {
@@ -47,7 +50,11 @@ resource "tfe_workspace" "eks" {
     identifier     = "${var.github_username}/2021-Hashicorp-Terrasky-Workshop"
     oauth_token_id = var.oauth_token_id
   }
-  working_directory = "03-eks"
+  working_directory   = "03-eks"
+  execution_mode      = "remote"
+  auto_apply          = true
+  global_remote_state = true
+  queue_all_runs      = false
 }
 
 resource "tfe_variable" "organization_name_for_eks" {
