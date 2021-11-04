@@ -1,5 +1,5 @@
 resource "tfe_workspace" "tfc_config" {
-  name                = "VPC"
+  name                = "TerraformCloudSeed"
   organization        = var.tfe_organization_name
   tag_names           = ["devopsdaystlv2021"]
   execution_mode      = "remote"
