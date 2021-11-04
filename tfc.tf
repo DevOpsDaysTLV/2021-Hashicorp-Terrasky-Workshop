@@ -26,6 +26,7 @@ resource "tfe_variable" "oauth_token_id" {
   category     = "terraform"
   workspace_id = tfe_workspace.tfc_config.id
   description  = "OAuth Token"
+  sensitive    = true
 }
 
 resource "tfe_variable" "github_username" {
