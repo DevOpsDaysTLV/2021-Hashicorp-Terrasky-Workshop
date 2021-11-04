@@ -10,6 +10,7 @@ resource "tfe_workspace" "tfc_config" {
     oauth_token_id = var.oauth_token_id
   }
   working_directory = "00-tfc"
+  queue_all_runs    = false
 }
 
 resource "tfe_variable" "organization_name" {
