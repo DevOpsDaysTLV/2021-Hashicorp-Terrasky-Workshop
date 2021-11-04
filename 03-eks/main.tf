@@ -28,7 +28,7 @@ module "eks" {
   cluster_version = "1.21"
   cluster_name    = "devopsdaytlv2021"
   vpc_id          = data.terraform_remote_state.vpc.outputs.vpc_id
-  subnets         = data.terraform_remote_state.vpc.public_subnets
+  subnets         = data.terraform_remote_state.vpc.outputs.public_subnets
   worker_groups = [
     {
       instance_type = "m4.large"
