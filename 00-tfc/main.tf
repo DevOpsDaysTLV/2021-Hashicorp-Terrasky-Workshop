@@ -42,7 +42,7 @@ resource "tfe_workspace" "eks" {
     identifier     = "${var.github_username}/2021-Hashicorp-Terrasky-Workshop"
     oauth_token_id = var.oauth_token_id
   }
-  working_directory = "01-vpc"
+  working_directory = "03-eks"
 }
 
 resource "tfe_variable" "organization_name_for_eks" {
