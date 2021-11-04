@@ -34,7 +34,7 @@ resource "tfe_variable" "organization_name_for_hvn" {
   description  = "Org Name"
 }
 
-resource "tfe_run_trigger" "test" {
+resource "tfe_run_trigger" "vpc_hvn" {
   workspace_id  = tfe_workspace.hvn.id
   sourceable_id = tfe_workspace.vpc.id
 }
@@ -61,7 +61,7 @@ resource "tfe_variable" "organization_name_for_eks" {
   ]
 }
 
-resource "tfe_run_trigger" "test" {
+resource "tfe_run_trigger" "vpc-eks" {
   workspace_id  = tfe_workspace.eks.id
   sourceable_id = tfe_workspace.vpc.id
 }
