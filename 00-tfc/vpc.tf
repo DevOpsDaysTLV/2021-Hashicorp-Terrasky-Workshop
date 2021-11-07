@@ -14,14 +14,14 @@ resource "tfe_workspace" "vpc" {
 
 }
 
-resource "tfe_variable" "aws_access_key_id" {
+resource "tfe_variable" "aws_access_key_id_for_vpc" {
   key          = "AWS_ACCESS_KEY_ID"
   value        = "Provide me and make me sensitive"
   category     = "env"
   workspace_id = tfe_workspace.vpc.id
 }
 
-resource "tfe_variable" "aws_secret_access_key" {
+resource "tfe_variable" "aws_secret_access_key_for_vpc" {
   key          = "AWS_SECRET_ACCESS_KEY"
   value        = "Provide me and make me sensitive"
   category     = "env"

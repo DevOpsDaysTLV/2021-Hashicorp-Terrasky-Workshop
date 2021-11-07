@@ -24,14 +24,14 @@ resource "tfe_variable" "organization_name_for_eks" {
   ]
 }
 
-resource "tfe_variable" "aws_access_key_id" {
+resource "tfe_variable" "aws_access_key_id_for_eks" {
   key          = "AWS_ACCESS_KEY_ID"
   value        = "Provide me and make me sensitive"
   category     = "env"
   workspace_id = tfe_workspace.eks.id
 }
 
-resource "tfe_variable" "aws_secret_access_key" {
+resource "tfe_variable" "aws_secret_access_key_for_eks" {
   key          = "AWS_SECRET_ACCESS_KEY"
   value        = "Provide me and make me sensitive"
   category     = "env"
