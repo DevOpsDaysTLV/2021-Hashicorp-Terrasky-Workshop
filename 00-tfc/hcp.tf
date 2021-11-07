@@ -17,7 +17,7 @@ resource "tfe_variable" "organization_name_for_hcp" {
   key          = "tfe_organization_name"
   value        = var.tfe_organization_name
   category     = "terraform"
-  workspace_id = tfe_workspace.hvn.id
+  workspace_id = tfe_workspace.hcp.id
   description  = "Org Name"
 }
 
