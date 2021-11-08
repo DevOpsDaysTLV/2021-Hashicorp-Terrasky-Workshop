@@ -31,7 +31,7 @@ resource "aws_route" "hvn-peering" {
 resource "hcp_hvn_route" "example-peering-route" {
   hvn_link         = hcp_hvn.demo_hcp_hvn.self_link
   hvn_route_id     = "peering-route"
-  destination_cidr = data.terraform_remote_state.vpc.outputs.cidr_bloc
+  destination_cidr = data.terraform_remote_state.vpc.outputs.cidr_block
   target_link      = hcp_aws_network_peering.peer.self_link
 }
 
