@@ -3,7 +3,6 @@ variable "tfe_organization_name" {
   description = "Terraform Cloud Organization Name"
 }
 
-
 variable "github_username" {
   type        = string
   description = "GitHub Username"
