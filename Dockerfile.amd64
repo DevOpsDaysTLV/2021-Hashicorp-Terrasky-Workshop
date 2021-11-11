@@ -1,0 +1,28 @@
+FROM ubuntu
+
+RUN apt update \
+    && DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends -y \
+    tzdata \
+    awscli \
+    unzip \
+    jq \
+    git \
+    cowsay \
+    curl
+
+WORKDIR /usr/local/bin
+
+ADD https://releases.hashicorp.com/terraform/1.0.10/terraform_1.0.10_linux_amd64.zip .
+ADD https://releases.hashicorp.com/vault/1.8.5/vault_1.8.5_linux_amd64.zip .
+ADD https://releases.hashicorp.com/consul/1.10.3/consul_1.10.3_linux_amd64.zip .
+
+ADD https://dl.k8s.io/release/v1.22.0/bin/linux/amd64/kubectl .
+ADD https://get.helm.sh/helm-v3.7.1-linux-amd64.tar.gz .
+
+RUN chmod +x kubectl \
+    && tar -xvf helm-v3.7.1-linux-amd64.tar.gz --strip-components=1 linux-amd64/helm && rm helm-v3.7.1-linux-amd64.tar.gz \
+    && unzip consul_1.10.3_linux_amd64.zip && rm consul_1.10.3_linux_amd64.zip \
+    && unzip terraform_1.0.10_linux_amd64.zip && rm terraform_1.0.10_linux_amd64.zip \
+    && unzip vault_1.8.5_linux_amd64.zip && rm vault_1.8.5_linux_amd64.zip
+
+WORKDIR /
