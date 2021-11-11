@@ -1,8 +1,3 @@
-resource "hcp_hvn" "demo_hcp_hvn" {
-  hvn_id         = "demo-hvn"
-  cloud_provider = "aws"
-  region         = var.region
-}
 
 data "terraform_remote_state" "vpc" {
   backend = "remote"
@@ -13,7 +8,6 @@ data "terraform_remote_state" "vpc" {
     }
   }
 }
-
 
 resource "hcp_aws_network_peering" "peer" {
   hvn_id          = hcp_hvn.demo_hcp_hvn.hvn_id
@@ -28,11 +22,16 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
   auto_accept               = true
 }
 
-
 resource "aws_route" "hvn-peering" {
   route_table_id            = data.terraform_remote_state.vpc.outputs.public_route_table_ids[0]
   destination_cidr_block    = hcp_hvn.demo_hcp_hvn.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection_accepter.peer.id
 }
 
+resource "hcp_hvn_route" "example-peering-route" {
+  hvn_link         = hcp_hvn.demo_hcp_hvn.self_link
+  hvn_route_id     = "peering-route"
+  destination_cidr = data.terraform_remote_state.vpc.outputs.cidr_block
+  target_link      = hcp_aws_network_peering.peer.self_link
+}
 
