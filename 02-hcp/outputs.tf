@@ -28,7 +28,7 @@ output "vault_admin_token" {
   sensitive = true
 }
 
-output "consul_config_file"
+output "consul_config_file" {
  value = hcp_consul_cluster.demo_hcp_consul.consul_config_file
  sensitive = true
 }
