@@ -18,9 +18,9 @@ pe "terraform init"
 
 p "Lets get configurations from our terraform outputs and put the in environment variables"
 
-pe "export VAULT_TOKEN=$(terraform output vault_admin_token)"
-pe "export VAULT_ADDR=$(terraform output vault_public_endpoint_url)"
-pe "export VAULT_PRIVATE_ADDR=$(terraform output vault_private_endpoint_url)"
+pe 'export VAULT_TOKEN=$(terraform output vault_admin_token)'
+pe 'export VAULT_ADDR=$(terraform output vault_public_endpoint_url)'
+pe 'export VAULT_PRIVATE_ADDR=$(terraform output vault_private_endpoint_url)'
 p "Default namespace in hcp is admin"
 pe "export VAULT_NAMESPACE=admin"
 #TODO check all values of status
@@ -176,7 +176,7 @@ pe "kubectl apply -f devwebapp.yaml"
 
 pe "kubectl get pods"
 
-pe "exec -it devwebapp -c devwebapp -- cat /vault/secrets/database-connect.sh"
+pe "kubectl exec -it devwebapp -c devwebapp -- cat /vault/secrets/database-connect.sh"
 
 pe "sleep 60"
-pe "exec -it devwebapp -c devwebapp -- cat /vault/secrets/database-connect.sh"
+pe "kubectl exec -it devwebapp -c devwebapp -- cat /vault/secrets/database-connect.sh"
