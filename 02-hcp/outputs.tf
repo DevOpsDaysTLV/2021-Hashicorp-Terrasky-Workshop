@@ -27,3 +27,14 @@ output "vault_admin_token" {
   value = hcp_vault_cluster_admin_token.demo_hcp_vault_token.token
   sensitive = true
 }
+
+output "consul_config_file" {
+ value = hcp_consul_cluster.demo_hcp_consul.consul_config_file
+ sensitive = true
+}
+output "consul_public_endpoint" {
+  value = hcp_consul_cluster.demo_hcp_consul.consul_public_endpoint_url
+}
+output "consul_private_endpoint" {
+  value = hcp_consul_cluster.demo_hcp_consul.consul_private_endpoint_url
+}
