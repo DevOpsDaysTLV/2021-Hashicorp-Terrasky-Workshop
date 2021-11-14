@@ -12,6 +12,8 @@ pe 'cd 02-hcp'
 pe 'ls -l'
 pe 'export CONSUL_HTTP_TOKEN=$(terraform output consul_root_token_secret_id | tr -d "\"")'
 
+p "Open $(terraform output consul_public_endpoint) and use ${CONSUL_HTTP_TOKEN} token to login"
+
 pe 'terraform output consul_ca_file | tr -d "\"" | base64 -d> ./ca.pem'
 pe "kubectl create secret generic \"consul-ca-cert\" --from-file='tls.crt=./ca.pem'"
 
@@ -71,11 +73,13 @@ syncCatalog:
 EOF
 
 pe 'cat config.yaml'
-pe 'helm install consul -f config.yaml hashicorp/consul --version "0.32.1" --set global.image=hashicorp/consul-enterprise:1.10.1-ent'
+pe 'helm install --wait consul -f config.yaml hashicorp/consul --version "0.32.1" --set global.image=hashicorp/consul-enterprise:1.10.1-ent'
 
 pe 'kubectl get pods'
 
 p "Open $(terraform output consul_public_endpoint) and use ${CONSUL_HTTP_TOKEN} token to login"
+pe 'kubectl get svc'
+
 pe 'clear'
 #####hashicorp/consul-terraform-sync
 p "Let's deploy terraform consul sync"

@@ -18,9 +18,12 @@ pe "terraform init"
 
 p "Lets get configurations from our terraform outputs and put the in environment variables"
 
-pe 'export VAULT_TOKEN=$(terraform output vault_admin_token)'
-pe 'export VAULT_ADDR=$(terraform output vault_public_endpoint_url)'
-pe 'export VAULT_PRIVATE_ADDR=$(terraform output vault_private_endpoint_url)'
+pe 'export VAULT_TOKEN=$(terraform output vault_admin_token| tr -d "\"")'
+pe 'echo $VAULT_TOKEN'
+pe 'export VAULT_ADDR=$(terraform output vault_public_endpoint_url| tr -d "\"")'
+pe 'echo $VAULT_ADDR'
+pe 'export VAULT_PRIVATE_ADDR=$(terraform output vault_private_endpoint_url| tr -d "\"")'
+pe 'echo $VAULT_PRIVATE_ADDR'
 p "Default namespace in hcp is admin"
 pe "export VAULT_NAMESPACE=admin"
 #TODO check all values of status
@@ -53,7 +56,7 @@ injector:
 EOF
 
 pe "cat values.yaml"
-pe "helm install vault -f values.yaml hashicorp/vault"
+pe "helm install --wait vault -f values.yaml hashicorp/vault"
 
 pe "kubectl get pods"
 
@@ -73,11 +76,11 @@ p "KUBE_CA_CERT is a CA certificate of our kubernetes"
 
 pe "kubectl get secret  $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.ca\.crt }' | base64 --decode"
 export KUBE_CA_CERT=$(kubectl get secret  $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.ca\.crt }' | base64 --decode)
-
+echo 
 p "KUBE_HOST is the endpoint of our kubernetes cluster control plane"
 export KUBE_HOST=$(kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}')
 pe "kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}'"
-
+echo 
 p "ISSUER is #TODO"
 pe "kubectl proxy &"
 pe "curl --silent http://127.0.0.1:8001/.well-known/openid-configuration | jq -r .issuer"
@@ -115,9 +118,10 @@ pe "vault write auth/kubernetes/role/devweb-app \
 
 pe "helm repo add bitnami https://charts.bitnami.com/bitnami"
 
-pe "helm install mysql bitnami/mysql --set 'primary.service.type=LoadBalancer'"
+pe "helm install --wait mysql bitnami/mysql --set 'primary.service.type=LoadBalancer'"
 
 pe "kubectl get pods"
+#TODO wait until ready
 pe "kubectl get services"
 
 
@@ -130,7 +134,7 @@ pe "export MYSQL_SVC=\"$(kubectl get services mysql -o=jsonpath='{.status.loadBa
 #*****check what allowed roles is ********
 
 pe "vault write database/config/mysql plugin_name=mysql-database-plugin connection_url=\"{{username}}:{{password}}@tcp(${MYSQL_SVC}:3306)/\"  allowed_roles=\"readonly\"  username=\"root\" password=\"$ROOT_PASSWORD\""
-
+#TODO check when dns has propogated
 
 pe "vault write database/roles/readonly db_name=mysql  creation_statements=\"CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';\"  default_ttl=\"1m\"  max_ttl=\"1m\""
 
