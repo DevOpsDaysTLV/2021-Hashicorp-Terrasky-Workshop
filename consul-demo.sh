@@ -80,19 +80,5 @@ pe 'kubectl get pods'
 p "Open $(terraform output consul_public_endpoint) and use ${CONSUL_HTTP_TOKEN} token to login"
 pe 'kubectl get svc'
 
+pe 'ping 
 pe 'clear'
-#####hashicorp/consul-terraform-sync
-p "Let's deploy terraform consul sync"
-cat > cts.yaml <<EOF
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: cts
-  labels:
-    app: cts
-spec:
-  containers:
-    - name: cts
-      image: hashicorp/consul-terraform-sync
-EOF

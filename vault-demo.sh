@@ -61,60 +61,8 @@ pe "helm install --wait vault -f values.yaml hashicorp/vault"
 pe "kubectl get pods"
 
 
-pe "vault auth enable kubernetes"
 
-p "Now we need to get some info to connect EKS and Vault HCP"
-
-p "TOKEN_REVIEW_JWT is a secret token from vault service account"
-pe "kubectl get secret $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.token }' | base64 --decode"
-
-export TOKEN_REVIEW_JWT=$(kubectl get secret \
-   $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') \
-   -o jsonpath='{ .data.token }' | base64 --decode)
-
-p "KUBE_CA_CERT is a CA certificate of our kubernetes"
-
-pe "kubectl get secret  $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.ca\.crt }' | base64 --decode"
-export KUBE_CA_CERT=$(kubectl get secret  $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.ca\.crt }' | base64 --decode)
-echo 
-p "KUBE_HOST is the endpoint of our kubernetes cluster control plane"
-export KUBE_HOST=$(kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}')
-pe "kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}'"
-echo 
-p "ISSUER is #TODO"
-pe "kubectl proxy &"
-pe "curl --silent http://127.0.0.1:8001/.well-known/openid-configuration | jq -r .issuer"
-export ISSUER="$(curl --silent http://127.0.0.1:8001/.well-known/openid-configuration | jq -r .issuer)"
-pe "kill %1"
-
-pe 'vault write auth/kubernetes/config \
-   token_reviewer_jwt="$TOKEN_REVIEW_JWT" \
-   kubernetes_host="$KUBE_HOST" \
-   kubernetes_ca_cert="$KUBE_CA_CERT" \
-   issuer="$ISSUER"'
-
-
-# TODO how to read policy 
-
-p "Creating devwebapp policy:"
-echo '"database/creds/readonly" { \
-  capabilities = ["read"] \
-}'
-
-vault policy write devwebapp - <<EOF
-path "database/creds/readonly" {
-  capabilities = ["read"]
-}
-EOF
-
-pe "vault write auth/kubernetes/role/devweb-app \
-        bound_service_account_names=internal-app \
-        bound_service_account_namespaces=default \
-        policies=devwebapp \
-        ttl=24h"
-
-
-# mysql deployment 
+# mysql deployment
 
 pe "helm repo add bitnami https://charts.bitnami.com/bitnami"
 
@@ -140,6 +88,64 @@ pe "vault write database/roles/readonly db_name=mysql  creation_statements=\"CRE
 
 pe "vault read database/creds/readonly"
 
+pe 'clear'
+
+pe "let's make EKS workloads authenticate with Vault"
+
+pe "vault auth enable kubernetes"
+
+p "Now we need to get some info to connect EKS and Vault HCP"
+
+p "TOKEN_REVIEW_JWT is a secret token from vault service account"
+pe "kubectl get secret $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.token }' | base64 --decode"
+
+export TOKEN_REVIEW_JWT=$(kubectl get secret \
+   $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') \
+   -o jsonpath='{ .data.token }' | base64 --decode)
+
+p "KUBE_CA_CERT is a CA certificate of our kubernetes"
+
+pe "kubectl get secret  $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.ca\.crt }' | base64 --decode"
+export KUBE_CA_CERT=$(kubectl get secret  $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.ca\.crt }' | base64 --decode)
+echo
+p "KUBE_HOST is the endpoint of our kubernetes cluster control plane"
+export KUBE_HOST=$(kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}')
+pe "kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}'"
+echo
+p "ISSUER is #TODO"
+pe "kubectl proxy &"
+pe "curl --silent http://127.0.0.1:8001/.well-known/openid-configuration | jq -r .issuer"
+export ISSUER="$(curl --silent http://127.0.0.1:8001/.well-known/openid-configuration | jq -r .issuer)"
+pe "kill %1"
+
+pe 'vault write auth/kubernetes/config \
+   token_reviewer_jwt="$TOKEN_REVIEW_JWT" \
+   kubernetes_host="$KUBE_HOST" \
+   kubernetes_ca_cert="$KUBE_CA_CERT" \
+   issuer="$ISSUER"'
+
+
+# TODO how to read policy
+
+p "Creating devwebapp policy:"
+echo '"database/creds/readonly" { 
+  capabilities = ["read"] 
+}'
+
+vault policy write devwebapp - <<EOF
+path "database/creds/readonly" {
+  capabilities = ["read"]
+}
+EOF
+
+pe "vault write auth/kubernetes/role/devweb-app \
+        bound_service_account_names=internal-app \
+        bound_service_account_namespaces=default \
+        policies=devwebapp \
+        ttl=24h"
+
+
+
 cat > devwebapp.yaml <<EOF
 ---
 apiVersion: v1
@@ -152,7 +158,7 @@ metadata:
     vault.hashicorp.com/agent-inject: "true"
     vault.hashicorp.com/agent-cache-enable: "true"
     vault.hashicorp.com/role: "devweb-app"
-    vault.hashicorp.com/namespace: "admin" 
+    vault.hashicorp.com/namespace: "admin"
     vault.hashicorp.com/agent-inject-secret-database-connect.sh: "database/creds/readonly"
     vault.hashicorp.com/agent-inject-template-database-connect.sh: |
       {{- with secret "database/creds/readonly" -}}
@@ -177,6 +183,8 @@ EOF
 pe "cat internal-app.yaml"
 pe "kubectl apply -f internal-app.yaml"
 pe "kubectl apply -f devwebapp.yaml"
+
+pe 'kubectl wait pod/devwebapp --for condition=ready'
 
 pe "kubectl get pods"
 
