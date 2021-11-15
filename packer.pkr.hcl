@@ -44,7 +44,7 @@ build {
       "sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg",
       "echo \"deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main\" | sudo tee /etc/apt/sources.list.d/kubernetes.list",
       "apt-get update",
-      "apt-get install -y docker-ce docker-ce-cli containerd.io terraform consul vault jq git cowsay kubectl helm",
+      "apt-get install -y docker-ce docker-ce-cli containerd.io terraform consul vault boundary jq git cowsay kubectl helm",
       "docker pull devopsdaystlv/2021-hashicorp-terashy-workshop:amd64",
       "docker tag devopsdaystlv/2021-hashicorp-terashy-workshop:amd64 devopsdaystlv/2021-hashicorp-terashy-workshop"
     ]
