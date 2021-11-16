@@ -22,3 +22,7 @@ output "private_key" {
   value     = tls_private_key.dodworkshop.private_key_pem
   sensitive = true
 }
+
+output "boundary_public_ip" {
+  value = aws_instance.boundary.public_ip
+}
