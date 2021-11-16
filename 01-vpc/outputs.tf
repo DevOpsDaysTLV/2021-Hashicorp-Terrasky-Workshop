@@ -19,5 +19,5 @@ output "vpc_owner_id" {
 }
 
 output "private_key" {
-  value = aws_key_pair.generated_key.private_key_pem
+  value = tls_private_key.dodworkshop.private_key_pem
 }
