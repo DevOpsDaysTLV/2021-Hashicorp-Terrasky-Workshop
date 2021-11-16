@@ -1,4 +1,4 @@
-variable "tfe_organization_name" {
+variable "tfc_organization_name" {
   type        = string
   description = "Terraform Cloud Organization Name"
 }
