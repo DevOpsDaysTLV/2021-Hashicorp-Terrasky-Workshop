@@ -19,5 +19,6 @@ output "vpc_owner_id" {
 }
 
 output "private_key" {
-  value = tls_private_key.dodworkshop.private_key_pem
+  value     = tls_private_key.dodworkshop.private_key_pem
+  sensitive = true
 }
