@@ -3,7 +3,7 @@
 ########################
 # include the magic
 ########################
-. demo-magic.sh
+. /usr/local/bin/demo-magic.sh
 TYPE_SPEED=80
 clear
 

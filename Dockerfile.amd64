@@ -8,16 +8,21 @@ RUN apt update \
     jq \
     git \
     cowsay \
-    curl
+    curl \
+    vim \
+    less \
+    mysql-client \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/local/bin
 
 ADD https://releases.hashicorp.com/terraform/1.0.10/terraform_1.0.10_linux_amd64.zip .
 ADD https://releases.hashicorp.com/vault/1.8.5/vault_1.8.5_linux_amd64.zip .
 ADD https://releases.hashicorp.com/consul/1.10.3/consul_1.10.3_linux_amd64.zip .
-
+ADD https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh .
 ADD https://dl.k8s.io/release/v1.22.0/bin/linux/amd64/kubectl .
 ADD https://get.helm.sh/helm-v3.7.1-linux-amd64.tar.gz .
+
 
 RUN chmod +x kubectl \
     && tar -xvf helm-v3.7.1-linux-amd64.tar.gz --strip-components=1 linux-amd64/helm && rm helm-v3.7.1-linux-amd64.tar.gz \
@@ -25,4 +30,6 @@ RUN chmod +x kubectl \
     && unzip terraform_1.0.10_linux_amd64.zip && rm terraform_1.0.10_linux_amd64.zip \
     && unzip vault_1.8.5_linux_amd64.zip && rm vault_1.8.5_linux_amd64.zip
 
-WORKDIR /
+WORKDIR /workshop
+
+ADD . .
