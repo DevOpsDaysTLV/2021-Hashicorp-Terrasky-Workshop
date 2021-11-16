@@ -12,7 +12,7 @@ pe "cd 02-hcp"
 pe "ls -l"
 p "Configuring correct terraform cloud  organization instead of empty placeholder"
 [ ! -f remote.tf.bck ] && cp remote.tf remote.tf.bck
-sed "s#\"\"#\"$TF_VAR_tfe_organization_name\"#g" remote.tf.bck > remote.tf
+sed "s#\"\"#\"$TF_VAR_tfc_organization_name\"#g" remote.tf.bck > remote.tf
 pe "cat remote.tf"
 pe "terraform init"
 
@@ -33,7 +33,7 @@ pe "vault status"
 p "Now let's get configmap output and put in in /tmp/kubeconfig but it's in another directory (and state) 03-eks"
 pe "cd ../03-eks"
 [ ! -f remote.tf.bck ] && cp remote.tf remote.tf.bck
-sed "s#\"\"#\"$TF_VAR_tfe_organization_name\"#g" remote.tf.bck > remote.tf
+sed "s#\"\"#\"$TF_VAR_tfc_organization_name\"#g" remote.tf.bck > remote.tf
 pe "terraform init"
 pe "terraform output kubectl_config > /tmp/kubeconfig_raw"
 p "clean the file a bit and let's see it"

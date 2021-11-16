@@ -1,0 +1,32 @@
+{
+    "data": {
+      "type": "varsets",
+      "attributes": {
+        "name": "DevOpsDays2021Workshop",
+        "description": "Full of vars and such for mass reuse",
+        "is-global": false
+      },
+      "relationships": {
+        "vars": {
+          "data": [
+            {
+              "type": "vars",
+              "attributes": {
+                "key": "AWS_ACCESS_KEY_ID",
+                "value": "Provide me and make me sensitive",
+                "category": "env"
+              }
+            },
+              {
+                "type": "vars",
+                "attributes": {
+                  "key": "AWS_SECRET_ACCESS_KEY",
+                  "value": "Provide me and make me sensitive",
+                  "category": "env"
+                }
+            }
+          ]
+        }
+      }
+    }
+  }

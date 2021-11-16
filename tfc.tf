@@ -1,6 +1,6 @@
-resource "tfe_workspace" "tfc_config" {
+resource "tfe_workspace" "terraform_cloud_seed" {
   name                = "TerraformCloudSeed"
-  organization        = var.tfe_organization_name
+  organization        = var.tfc_organization_name
   tag_names           = ["devopsdaystlv2021"]
   execution_mode      = "remote"
   auto_apply          = true
@@ -14,10 +14,10 @@ resource "tfe_workspace" "tfc_config" {
 }
 
 resource "tfe_variable" "organization_name" {
-  key          = "tfe_organization_name"
-  value        = var.tfe_organization_name
+  key          = "tfc_organization_name"
+  value        = var.tfc_organization_name
   category     = "terraform"
-  workspace_id = tfe_workspace.tfc_config.id
+  workspace_id = tfe_workspace.terraform_cloud_seed.id
   description  = "Org Name"
 }
 
@@ -25,7 +25,7 @@ resource "tfe_variable" "oauth_token_id" {
   key          = "oauth_token_id"
   value        = var.oauth_token_id
   category     = "terraform"
-  workspace_id = tfe_workspace.tfc_config.id
+  workspace_id = tfe_workspace.terraform_cloud_seed.id
   description  = "OAuth Token"
 }
 
@@ -33,7 +33,7 @@ resource "tfe_variable" "github_username" {
   key          = "github_username"
   value        = var.github_username
   category     = "terraform"
-  workspace_id = tfe_workspace.tfc_config.id
+  workspace_id = tfe_workspace.terraform_cloud_seed.id
   description  = "GitHub Username"
 }
 
@@ -41,6 +41,6 @@ resource "tfe_variable" "tfe_token" {
   key          = "TFE_TOKEN"
   value        = "Provide me and make me sensitive"
   category     = "env"
-  workspace_id = tfe_workspace.tfc_config.id
-  description  = "TFC Token"
+  workspace_id = tfe_workspace.terraform_cloud_seed.id
+  description  = "Terraform Cloud API Token"
 }

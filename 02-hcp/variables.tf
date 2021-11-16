@@ -4,6 +4,6 @@ variable "region" {
   default     = "eu-central-1"
 }
 
-variable "tfe_organization_name" {
+variable "tfc_organization_name" {
   type = string
 }
