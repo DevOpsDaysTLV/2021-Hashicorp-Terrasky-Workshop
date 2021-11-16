@@ -38,4 +38,5 @@ resource "aws_instance" "boundary" {
   tags = {
     Name = "Boundary for devopsdays"
   }
+  subnet_id = module.vpc.public_subnets[0]
 }
