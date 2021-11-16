@@ -1,7 +1,7 @@
 terraform {
   backend "remote" {
     hostname     = "app.terraform.io"
-    organization = ""
+    organization = "burdandrei"
 
     workspaces {
       name = "VPC"

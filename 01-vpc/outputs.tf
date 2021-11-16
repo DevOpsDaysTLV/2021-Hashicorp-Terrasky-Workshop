@@ -17,3 +17,12 @@ output "public_route_table_ids" {
 output "vpc_owner_id" {
   value = module.vpc.vpc_owner_id
 }
+
+output "private_key" {
+  value     = tls_private_key.dodworkshop.private_key_pem
+  sensitive = true
+}
+
+output "boundary_public_ip" {
+  value = aws_instance.boundary.public_ip
+}

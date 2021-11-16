@@ -1,6 +1,6 @@
 resource "tfe_workspace" "eks" {
   name         = "EKS"
-  organization = var.tfe_organization_name
+  organization = var.tfc_organization_name
   tag_names    = ["devopsdaystlv2021"]
   vcs_repo {
     identifier     = "${var.github_username}/2021-Hashicorp-Terrasky-Workshop"
@@ -13,9 +13,10 @@ resource "tfe_workspace" "eks" {
   queue_all_runs      = false
 }
 
+// Need this for remote state sharing
 resource "tfe_variable" "organization_name_for_eks" {
-  key          = "tfe_organization_name"
-  value        = var.tfe_organization_name
+  key          = "tfc_organization_name"
+  value        = var.tfc_organization_name
   category     = "terraform"
   workspace_id = tfe_workspace.eks.id
   description  = "Org Name"
@@ -23,21 +24,6 @@ resource "tfe_variable" "organization_name_for_eks" {
     tfe_workspace.eks
   ]
 }
-
-resource "tfe_variable" "aws_access_key_id_for_eks" {
-  key          = "AWS_ACCESS_KEY_ID"
-  value        = "Provide me and make me sensitive"
-  category     = "env"
-  workspace_id = tfe_workspace.eks.id
-}
-
-resource "tfe_variable" "aws_secret_access_key_for_eks" {
-  key          = "AWS_SECRET_ACCESS_KEY"
-  value        = "Provide me and make me sensitive"
-  category     = "env"
-  workspace_id = tfe_workspace.eks.id
-}
-
 
 resource "tfe_run_trigger" "vpc-eks" {
   workspace_id  = tfe_workspace.eks.id
