@@ -17,3 +17,7 @@ output "public_route_table_ids" {
 output "vpc_owner_id" {
   value = module.vpc.vpc_owner_id
 }
+
+output "private_key" {
+  value = aws_key_pair.generated_key.private_key_pem
+}
