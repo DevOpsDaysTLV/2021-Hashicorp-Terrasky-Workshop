@@ -33,10 +33,8 @@ resource "aws_instance" "boundary" {
   ami                         = "ami-0f4224d9a9b088c71"
   instance_type               = "t3.micro"
   associate_public_ip_address = true
-  vpc_security_group_ids      = module.vpc.public_subnets
+  vpc_security_group_ids      = [module.vpc.default_security_group_id]
   key_name                    = aws_key_pair.generated_key.key_name
-  security_groups             = [module.vpc.default_security_group_id]
-
   tags = {
     Name = "Boundary for devopsdays"
   }
