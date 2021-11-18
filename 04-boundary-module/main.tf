@@ -11,7 +11,7 @@ provider "boundary" {
   addr                            = "http://:9200"
   auth_method_id                  = "ampw_1234567890" # changeme
   password_auth_method_login_name = "admin"           # changeme
-  password_auth_method_password   = "password"        # changeme
+  password_auth_method_password   = "dodtlv2021"        # changeme
 }
 
 resource "boundary_scope" "org" {

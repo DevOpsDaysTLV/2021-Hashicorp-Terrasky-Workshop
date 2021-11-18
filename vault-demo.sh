@@ -11,9 +11,12 @@ pe "ls -l"
 pe "cd 02-hcp"
 pe "ls -l"
 p "Configuring correct terraform cloud  organization instead of empty placeholder"
+pe "cat remote.tf"
 [ ! -f remote.tf.bck ] && cp remote.tf remote.tf.bck
 sed "s#\"\"#\"$TF_VAR_tfc_organization_name\"#g" remote.tf.bck > remote.tf
 pe "cat remote.tf"
+p "use ${TF_VAR_tfc_token} to login"
+pe "terraform login"
 pe "terraform init"
 
 p "Lets get configurations from our terraform outputs and put the in environment variables"
@@ -41,8 +44,40 @@ sed "/.*EOT$/d" /tmp/kubeconfig_raw > /tmp/kubeconfig
 
 pe "cat /tmp/kubeconfig"
 pe "export KUBECONFIG=/tmp/kubeconfig"
+pe "chmod 600 /tmp/kubeconfig"
 
 pe "kubectl get pods -A"
+
+
+# mysql deployment
+pe 'clear'
+pe "helm repo add bitnami https://charts.bitnami.com/bitnami"
+
+pe "helm install --wait mysql bitnami/mysql --set 'primary.service.type=LoadBalancer'"
+
+pe "kubectl get pods"
+pe "kubectl get services"
+
+
+pe 'export ROOT_PASSWORD=$(kubectl get secret --namespace default mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode)'
+
+pe "vault secrets enable database"
+
+
+pe "export MYSQL_SVC=\"$(kubectl get services mysql -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}')\""
+
+pe "vault write database/config/mysql plugin_name=mysql-database-plugin connection_url=\"{{username}}:{{password}}@tcp(${MYSQL_SVC}:3306)/\"  allowed_roles=\"readonly\"  username=\"root\" password=\"$ROOT_PASSWORD\""
+#TODO check when dns has propogated
+
+#pe 'vault write -force database/rotate-root/mysql'
+pe "vault write database/roles/readonly db_name=mysql  creation_statements=\"CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';\"  default_ttl=\"1m\"  max_ttl=\"1m\""
+
+pe "vault read database/creds/readonly > /tmp/creds"
+pe "cat /tmp/creds"
+pe "export TEST_MYSQL_PASS=$(cat /tmp/creds | grep password | awk '{print $2}')"
+pe "export TEST_MYSQL_USER=$(cat /tmp/creds | grep user | awk '{print $2}')"
+pe "mysql -h ${MYSQL_SVC} -u ${TEST_MYSQL_USER}  -p${TEST_MYSQL_PASS}"
+
 
 pe "clear"
 
@@ -60,37 +95,7 @@ pe "helm install --wait vault -f values.yaml hashicorp/vault"
 
 pe "kubectl get pods"
 
-
-
-# mysql deployment
-
-pe "helm repo add bitnami https://charts.bitnami.com/bitnami"
-
-pe "helm install --wait mysql bitnami/mysql --set 'primary.service.type=LoadBalancer'"
-
-pe "kubectl get pods"
-#TODO wait until ready
-pe "kubectl get services"
-
-
-pe 'export ROOT_PASSWORD=$(kubectl get secret --namespace default mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode)'
-
-pe "vault secrets enable database"
-
-
-pe "export MYSQL_SVC=\"$(kubectl get services mysql -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}')\""
-#*****check what allowed roles is ********
-
-pe "vault write database/config/mysql plugin_name=mysql-database-plugin connection_url=\"{{username}}:{{password}}@tcp(${MYSQL_SVC}:3306)/\"  allowed_roles=\"readonly\"  username=\"root\" password=\"$ROOT_PASSWORD\""
-#TODO check when dns has propogated
-
-pe "vault write database/roles/readonly db_name=mysql  creation_statements=\"CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';\"  default_ttl=\"1m\"  max_ttl=\"1m\""
-
-pe "vault read database/creds/readonly"
-
-pe 'clear'
-
-pe "let's make EKS workloads authenticate with Vault"
+pe "let us make EKS workloads authenticate with Vault"
 
 pe "vault auth enable kubernetes"
 
@@ -110,9 +115,11 @@ export KUBE_CA_CERT=$(kubectl get secret  $(kubectl get serviceaccount vault -o 
 echo
 p "KUBE_HOST is the endpoint of our kubernetes cluster control plane"
 export KUBE_HOST=$(kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}')
+echo
 pe "kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}'"
 echo
-p "ISSUER is #TODO"
+#TODO issuer
+p "ISSUER is ..."
 pe "kubectl proxy &"
 pe "curl --silent http://127.0.0.1:8001/.well-known/openid-configuration | jq -r .issuer"
 export ISSUER="$(curl --silent http://127.0.0.1:8001/.well-known/openid-configuration | jq -r .issuer)"
@@ -124,12 +131,9 @@ pe 'vault write auth/kubernetes/config \
    kubernetes_ca_cert="$KUBE_CA_CERT" \
    issuer="$ISSUER"'
 
-
-# TODO how to read policy
-
 p "Creating devwebapp policy:"
-echo '"database/creds/readonly" { 
-  capabilities = ["read"] 
+echo '"database/creds/readonly" {
+  capabilities = ["read"]
 }'
 
 vault policy write devwebapp - <<EOF
@@ -138,12 +142,12 @@ path "database/creds/readonly" {
 }
 EOF
 
-pe "vault write auth/kubernetes/role/devweb-app \
-        bound_service_account_names=internal-app \
-        bound_service_account_namespaces=default \
-        policies=devwebapp \
-        ttl=24h"
-
+echo 'vault write auth/kubernetes/role/devweb-app
+        bound_service_account_names=internal-app
+        bound_service_account_namespaces=default
+        policies=devwebapp
+        ttl=24h'
+vault write auth/kubernetes/role/devweb-app bound_service_account_names=internal-app bound_service_account_namespaces=default policies=devwebapp ttl=24h
 
 
 cat > devwebapp.yaml <<EOF
@@ -161,9 +165,10 @@ metadata:
     vault.hashicorp.com/namespace: "admin"
     vault.hashicorp.com/agent-inject-secret-database-connect.sh: "database/creds/readonly"
     vault.hashicorp.com/agent-inject-template-database-connect.sh: |
+      config:
       {{- with secret "database/creds/readonly" -}}
-      mysql -h my-release-mysql.default.svc.cluster.local --user={{ .Data.username }} --password={{ .Data.password }} my_database
-
+      username: {{ .Data.username }} 
+      password: {{ .Data.password }}
       {{- end -}}
 spec:
   serviceAccountName: internal-app

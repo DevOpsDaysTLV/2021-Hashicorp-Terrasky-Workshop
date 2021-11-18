@@ -15,6 +15,7 @@ pe 'export CONSUL_HTTP_TOKEN=$(terraform output consul_root_token_secret_id | tr
 p "Open $(terraform output consul_public_endpoint) and use ${CONSUL_HTTP_TOKEN} token to login"
 
 pe 'terraform output consul_ca_file | tr -d "\"" | base64 -d> ./ca.pem'
+pe 'export KUBECONFIG=/tmp/kubeconfig'
 pe "kubectl create secret generic \"consul-ca-cert\" --from-file='tls.crt=./ca.pem'"
 
 pe 'terraform output consul_config_file | tr -d "\""| base64 -d | jq > client_config.json'
@@ -80,5 +81,3 @@ pe 'kubectl get pods'
 p "Open $(terraform output consul_public_endpoint) and use ${CONSUL_HTTP_TOKEN} token to login"
 pe 'kubectl get svc'
 
-pe 'ping 
-pe 'clear'
