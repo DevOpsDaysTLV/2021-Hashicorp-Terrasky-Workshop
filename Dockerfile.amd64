@@ -26,7 +26,7 @@ ADD https://get.helm.sh/helm-v3.7.1-linux-amd64.tar.gz .
 ADD https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/aws-iam-authenticator .
 
 RUN chmod +x kubectl \
-    && chmod + aws-iam-authenticator \
+    && chmod +x aws-iam-authenticator \
     && tar -xvf helm-v3.7.1-linux-amd64.tar.gz --strip-components=1 linux-amd64/helm && rm helm-v3.7.1-linux-amd64.tar.gz \
     && unzip consul_1.10.3_linux_amd64.zip && rm consul_1.10.3_linux_amd64.zip \
     && unzip terraform_1.0.10_linux_amd64.zip && rm terraform_1.0.10_linux_amd64.zip \
