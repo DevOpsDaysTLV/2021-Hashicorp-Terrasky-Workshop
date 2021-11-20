@@ -11,8 +11,8 @@ clear
 pe 'ls -l'
 pe 'cd 02-hcp'
 pe 'ls -l'
-pe 'export CONSUL_HTTP_TOKEN=$(terraform output consul_root_token_secret_id | tr -d "\"")'
-pe 'export CONSUL_PRIVATE_ADDRESS=$(terraform output consul_private_endpoint| tr -d "\"")'
+pe 'export CONSUL_HTTP_TOKEN=$(terraform output --raw consul_root_token_secret_id)'
+pe 'export CONSUL_PRIVATE_ADDRESS=$(terraform output --raw consul_private_endpoint)'
 
 pe 'cd ../01-vpc'
 pe "cat remote.tf"
@@ -61,7 +61,7 @@ terraform_provider "local" {
 }
 EOF
 pe 'cat cts.hcl'
-
+pe 'export KUBECONFIG=/tmp/kubeconfig'
 pe 'kubectl create secret generic cts-config --from-file=./cts.hcl'
 pe 'kubectl create secret generic boundary-module --from-file=../04-boundary-module'
 p "Let's deploy terraform consul sync"
@@ -98,4 +98,7 @@ pe 'kubectl apply -f cts.yaml'
 pe 'kubectl wait pod/cts --for condition=ready'
 pe 'kubectl logs cts'
 pe 'kubectl exec -it cts -- cat /consul-terraform-sync/sync-tasks/example-task/terraform.tfvars'
-pe "browse to http://${BOUNDARY_IP}:9200"
+p "browse to http://${BOUNDARY_IP}:9200"
+
+
+#####

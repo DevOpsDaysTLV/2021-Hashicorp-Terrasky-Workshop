@@ -10,15 +10,16 @@ clear
 pe 'ls -l'
 pe 'cd 02-hcp'
 pe 'ls -l'
-pe 'export CONSUL_HTTP_TOKEN=$(terraform output consul_root_token_secret_id | tr -d "\"")'
+pe 'cat outputs.tf'
+pe 'export CONSUL_HTTP_TOKEN=$(terraform output --raw consul_root_token_secret_id )'
 
 p "Open $(terraform output consul_public_endpoint) and use ${CONSUL_HTTP_TOKEN} token to login"
 
-pe 'terraform output consul_ca_file | tr -d "\"" | base64 -d> ./ca.pem'
+pe 'terraform output --raw consul_ca_file |  base64 -d> ./ca.pem'
 pe 'export KUBECONFIG=/tmp/kubeconfig'
 pe "kubectl create secret generic \"consul-ca-cert\" --from-file='tls.crt=./ca.pem'"
 
-pe 'terraform output consul_config_file | tr -d "\""| base64 -d | jq > client_config.json'
+pe 'terraform output --raw consul_config_file | base64 -d | jq > client_config.json'
 pe 'cat client_config.json'
 pe 'kubectl create secret generic "consul-gossip-key" --from-literal="key=$(jq -r .encrypt client_config.json)"'
 
@@ -26,14 +27,14 @@ pe 'kubectl create secret generic "consul-bootstrap-token" --from-literal="token
 # read about bootstrap ACL
 #https://learn.hashicorp.com/tutorials/consul/access-control-setup-production?in=consul/security
 
-pe 'helm repo add hashicorp https://helm.releases.hashicorp.com && helm repo update'
-
 pe 'export DATACENTER=$(jq -r .datacenter client_config.json)'
 pe 'export RETRY_JOIN=$(jq -r --compact-output .retry_join client_config.json)'
 pe 'export CONSUL_HTTP_ADDR=$(kubectl config view -o jsonpath="{.clusters[?(@.name == \"$(kubectl config current-context)\")].cluster.server}")'
 pe 'echo $DATACENTER && \
   echo $RETRY_JOIN && \
   echo $CONSUL_HTTP_ADDR'
+
+p 'Did I mentioned that Terasky is hiring?'
 
 cat > config.yaml << EOF
 global:
@@ -80,4 +81,3 @@ pe 'kubectl get pods'
 
 p "Open $(terraform output consul_public_endpoint) and use ${CONSUL_HTTP_TOKEN} token to login"
 pe 'kubectl get svc'
-

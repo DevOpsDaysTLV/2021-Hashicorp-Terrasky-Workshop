@@ -10,10 +10,10 @@ clear
 pe "ls -l"
 pe "cd 02-hcp"
 pe "ls -l"
-p "Configuring correct terraform cloud  organization instead of empty placeholder"
 pe "cat remote.tf"
 [ ! -f remote.tf.bck ] && cp remote.tf remote.tf.bck
 sed "s#\"\"#\"$TF_VAR_tfc_organization_name\"#g" remote.tf.bck > remote.tf
+p 'add organization'
 pe "cat remote.tf"
 p "use ${TF_VAR_tfc_token} to login"
 pe "terraform login"
@@ -21,11 +21,11 @@ pe "terraform init"
 
 p "Lets get configurations from our terraform outputs and put the in environment variables"
 
-pe 'export VAULT_TOKEN=$(terraform output vault_admin_token| tr -d "\"")'
+pe 'export VAULT_TOKEN=$(terraform output --raw vault_admin_token)'
 pe 'echo $VAULT_TOKEN'
-pe 'export VAULT_ADDR=$(terraform output vault_public_endpoint_url| tr -d "\"")'
+pe 'export VAULT_ADDR=$(terraform output --raw vault_public_endpoint_url)'
 pe 'echo $VAULT_ADDR'
-pe 'export VAULT_PRIVATE_ADDR=$(terraform output vault_private_endpoint_url| tr -d "\"")'
+pe 'export VAULT_PRIVATE_ADDR=$(terraform output --raw vault_private_endpoint_url)'
 pe 'echo $VAULT_PRIVATE_ADDR'
 p "Default namespace in hcp is admin"
 pe "export VAULT_NAMESPACE=admin"
@@ -38,9 +38,9 @@ pe "cd ../03-eks"
 [ ! -f remote.tf.bck ] && cp remote.tf remote.tf.bck
 sed "s#\"\"#\"$TF_VAR_tfc_organization_name\"#g" remote.tf.bck > remote.tf
 pe "terraform init"
-pe "terraform output kubectl_config > /tmp/kubeconfig_raw"
-p "clean the file a bit and let's see it"
-sed "/.*EOT$/d" /tmp/kubeconfig_raw > /tmp/kubeconfig
+pe "terraform output --raw kubectl_config > /tmp/kubeconfig"
+#p "clean the file a bit and let's see it"
+#sed "/.*EOT$/d" /tmp/kubeconfig_raw > /tmp/kubeconfig
 
 pe "cat /tmp/kubeconfig"
 pe "export KUBECONFIG=/tmp/kubeconfig"
@@ -101,22 +101,27 @@ pe "vault auth enable kubernetes"
 
 p "Now we need to get some info to connect EKS and Vault HCP"
 
-p "TOKEN_REVIEW_JWT is a secret token from vault service account"
-pe "kubectl get secret $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.token }' | base64 --decode"
+#p "TOKEN_REVIEW_JWT is a secret token from vault service account"
+#pe "kubectl get secret $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.token }' | base64 --decode"
+echo '#example of configuration' > config_example
+echo "export TOKEN_REVIEW_JWT=\$(kubectl get secret \$(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}')  -o jsonpath='{ .data.token }' | base64 --decode)" >> config_example
+echo "export KUBE_CA_CERT=\$(kubectl get secret  \$(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.ca\.crt }' | base64 --decode)" >> config_example
+echo "export KUBE_HOST=\$(kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}')" >> config_example
 
+pe "cat config_example"
 export TOKEN_REVIEW_JWT=$(kubectl get secret \
    $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') \
    -o jsonpath='{ .data.token }' | base64 --decode)
 
-p "KUBE_CA_CERT is a CA certificate of our kubernetes"
+#p "KUBE_CA_CERT is a CA certificate of our kubernetes"
 
-pe "kubectl get secret  $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.ca\.crt }' | base64 --decode"
+#pe "kubectl get secret  $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.ca\.crt }' | base64 --decode"
 export KUBE_CA_CERT=$(kubectl get secret  $(kubectl get serviceaccount vault -o jsonpath='{.secrets[0].name}') -o jsonpath='{ .data.ca\.crt }' | base64 --decode)
 echo
-p "KUBE_HOST is the endpoint of our kubernetes cluster control plane"
+#p "KUBE_HOST is the endpoint of our kubernetes cluster control plane"
 export KUBE_HOST=$(kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}')
-echo
-pe "kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}'"
+#echo
+#pe "kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}'"
 echo
 #TODO issuer
 p "ISSUER is ..."
@@ -135,19 +140,14 @@ p "Creating devwebapp policy:"
 echo '"database/creds/readonly" {
   capabilities = ["read"]
 }'
-
+p "vault policy write devwebapp <filename>"
 vault policy write devwebapp - <<EOF
 path "database/creds/readonly" {
   capabilities = ["read"]
 }
 EOF
 
-echo 'vault write auth/kubernetes/role/devweb-app
-        bound_service_account_names=internal-app
-        bound_service_account_namespaces=default
-        policies=devwebapp
-        ttl=24h'
-vault write auth/kubernetes/role/devweb-app bound_service_account_names=internal-app bound_service_account_namespaces=default policies=devwebapp ttl=24h
+pe "vault write auth/kubernetes/role/devweb-app bound_service_account_names=internal-app bound_service_account_namespaces=default policies=devwebapp ttl=24h"
 
 
 cat > devwebapp.yaml <<EOF
@@ -163,11 +163,11 @@ metadata:
     vault.hashicorp.com/agent-cache-enable: "true"
     vault.hashicorp.com/role: "devweb-app"
     vault.hashicorp.com/namespace: "admin"
-    vault.hashicorp.com/agent-inject-secret-database-connect.sh: "database/creds/readonly"
-    vault.hashicorp.com/agent-inject-template-database-connect.sh: |
+    vault.hashicorp.com/agent-inject-secret-database-connect.txt: "database/creds/readonly"
+    vault.hashicorp.com/agent-inject-template-database-connect.txt: |
       config:
-      {{- with secret "database/creds/readonly" -}}
-      username: {{ .Data.username }} 
+      {{ with secret "database/creds/readonly" -}}
+      username: {{ .Data.username }}
       password: {{ .Data.password }}
       {{- end -}}
 spec:
@@ -193,7 +193,7 @@ pe 'kubectl wait pod/devwebapp --for condition=ready'
 
 pe "kubectl get pods"
 
-pe "kubectl exec -it devwebapp -c devwebapp -- cat /vault/secrets/database-connect.sh"
+pe "kubectl exec -it devwebapp -c devwebapp -- cat /vault/secrets/database-connect.txt"
 
 pe "sleep 60"
-pe "kubectl exec -it devwebapp -c devwebapp -- cat /vault/secrets/database-connect.sh"
+pe "kubectl exec -it devwebapp -c devwebapp -- cat /vault/secrets/database-connect.txt"
