@@ -35,3 +35,21 @@ resource "hcp_hvn_route" "example-peering-route" {
   target_link      = hcp_aws_network_peering.peer.self_link
 }
 
+data "aws_security_group" "default" {
+  vpc_id = data.terraform_remote_state.vpc.outputs.vpc_id
+  filter {
+    name   = "group-name"
+    values = ["default"]
+  }
+}
+
+resource "aws_security_group_rule" "allow_hcp_inbound" {
+  type        = "ingress"
+  from_port   = 0
+  to_port     = 65535
+  protocol    = "tcp"
+  cidr_blocks = [hcp_hvn.demo_hcp_hvn.cidr_block]
+
+  security_group_id = data.aws_security_group.default.id
+}
+
