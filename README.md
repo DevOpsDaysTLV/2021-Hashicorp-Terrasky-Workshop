@@ -9,7 +9,8 @@ TF_VAR_tfc_organization_name
 TF_VAR_oauth_token_id
 TF_VAR_github_username
 TF_VAR_tfc_token 
-
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
 5. root: terraform init
 6. root: terraform apply
 7. TerraformCloudSeed: add TFE_TOKEN variable and run again
