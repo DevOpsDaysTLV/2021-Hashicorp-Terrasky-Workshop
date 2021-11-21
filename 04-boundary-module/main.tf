@@ -11,9 +11,8 @@ provider "boundary" {
   addr                            = "http://:9200"
   auth_method_id                  = "ampw_1234567890" # changeme
   password_auth_method_login_name = "admin"           # changeme
-  password_auth_method_password   = "password"        # changeme
+  password_auth_method_password   = "dodtlv2021"        # changeme
 }
-
 resource "boundary_scope" "org" {
   name                     = "DevOpsDays"
   description              = "TelAviv2021"
@@ -29,36 +28,36 @@ resource "boundary_scope" "project" {
   auto_create_admin_role = true
 }
 
-resource "boundary_host_catalog" "static" {
+resource "boundary_host_catalog" "aws_eks" {
   type = "static"
-
+  name = "eks services"
   scope_id = boundary_scope.project.id
 }
 
 resource "boundary_host" "boundary_host" {
   for_each = var.services
 
-  name            = "${each.key}-${each.value.node}"
+  name            = "${each.value.id}"
   type            = "static"
-  description     = each.value.node
-  address         = each.value.node_address
-  host_catalog_id = boundary_host_catalog.static.id
+  description     = "${each.value.name}"
+  address         = each.value.address
+  host_catalog_id = boundary_host_catalog.aws_eks.id
 }
 
-resource "boundary_host_set" "boundary_host_set" {
-  host_catalog_id = boundary_host_catalog.static.id
-  type            = "static"
-  host_ids        = [for i in boundary_host.boundary_host : i.id]
-}
 
-resource "boundary_target" "boundary_target" {
-  name         = "Nomad Clients"
-  description  = "SSH"
+resource "boundary_host_set" "eks_hosts" {
+  for_each = toset(distinct([ for i,z in var.services : z.name ]))
+  name = "${each.value}"
+  host_catalog_id = boundary_host_catalog.aws_eks.id
+  type            = "static"
+  host_ids        = [for i in boundary_host.boundary_host : i.id if i.description == each.value ]
+}
+resource "boundary_target" "mysql_target" {
+  for_each = toset([ for hs in boundary_host_set.eks_hosts: hs.name if length(regexall(".*mysql.*", hs.name )) > 0 ])
+  name         = "${each.value} - 3306"
+  description  = "Connect to ${each.value} service on 3306 port "
   type         = "tcp"
-  default_port = "22"
   scope_id     = boundary_scope.project.id
-  host_source_ids = [
-    boundary_host_set.boundary_host_set.id
-  ]
+  host_source_ids =  [ for hs in boundary_host_set.eks_hosts: hs.id if hs.name == each.value ]
+  default_port = "3306"
 }
-
