@@ -29,10 +29,10 @@ pe 'kubectl create secret generic "consul-bootstrap-token" --from-literal="token
 
 pe 'export DATACENTER=$(jq -r .datacenter client_config.json)'
 pe 'export RETRY_JOIN=$(jq -r --compact-output .retry_join client_config.json)'
-pe 'export CONSUL_HTTP_ADDR=$(kubectl config view -o jsonpath="{.clusters[?(@.name == \"$(kubectl config current-context)\")].cluster.server}")'
+pe 'export K8S_HTTP_ADDR=$(kubectl config view -o jsonpath="{.clusters[?(@.name == \"$(kubectl config current-context)\")].cluster.server}")'
 pe 'echo $DATACENTER && \
   echo $RETRY_JOIN && \
-  echo $CONSUL_HTTP_ADDR'
+  echo $K8S_HTTP_ADDR'
 
 p 'Did I mentioned that Terasky is hiring?'
 
@@ -60,14 +60,14 @@ externalServers:
   hosts: ${RETRY_JOIN}
   httpsPort: 443
   useSystemRoots: true
-  k8sAuthMethodHost: ${CONSUL_HTTP_ADDR}
+  k8sAuthMethodHost: ${K8S_HTTP_ADDR}
 client:
   enabled: true
   join: ${RETRY_JOIN}
 connectInject:
   enabled: false
 controller:
-  enabled: true
+  enabled: false
 ingressGateways:
   enabled: false
 syncCatalog:
