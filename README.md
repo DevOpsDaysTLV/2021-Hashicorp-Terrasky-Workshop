@@ -142,6 +142,9 @@ export AWS_SECRET_ACCESS_KEY=""
 
 ### Setup Hashicorp Cloud Platform
 
+<details>
+  <summary>Click to expand!</summary>
+  
 1. Browse to https://cloud.hashicorp.com
 
 2. Click on "Start a free trial"
@@ -180,10 +183,13 @@ export AWS_SECRET_ACCESS_KEY=""
 
 19. Copy clientID and client secret and **remember which is which** or you will have to do step "Fixing Mistake"
 
-  
+</details>
 
 ### TFC seeding
 
+<details>
+  <summary>Click to expand!</summary>
+  
 1. Broswe to "https://github.com/DevOpsDaysTLV/2021-Hashicorp-Terrasky-Workshop"
 
 2. Click on "fork" in right upper corner
@@ -250,10 +256,13 @@ terraform apply
 
 16. Click on Organization name in left upper corner and should see 4 workspaces "EKS","HCP","VPC" and "TerraformCloudSeed"
 
-  
+</details>  
 
 ### Setup VPC + EKS
 
+<details>
+  <summary>Click to expand!</summary>
+  
 1. In your Terraform Cloud window click on HCP workspace
 
 2. Click on Variables
@@ -292,7 +301,7 @@ bash -x varsets.sh
 
 16. Click on Organization name to see all workspaces. Completion of "VPC" workspace supposed to trigger "HCP" and "EKS" workspaces.
 
-  
+</details>
 
 ### Vault demo
 
