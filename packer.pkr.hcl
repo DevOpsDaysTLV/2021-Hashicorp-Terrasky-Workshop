@@ -8,7 +8,7 @@ packer {
 }
 
 source "amazon-ebs" "ubuntu" {
-  ami_name      = "devopsdays2021-hashicorp-terasky"
+  ami_name      = "devopsdays2021-hashicorp-terasky-{{timestamp}}"
   ami_groups    = ["all"]
   instance_type = "t2.micro"
   region        = "eu-central-1"
