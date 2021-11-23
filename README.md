@@ -60,7 +60,7 @@ export AWS_SECRET_ACCESS_KEY=""
 
 8. Click on Community AMIs
 
-9. Type in a searchbar devopsdays
+9. Type in a search bar devopsdays
 
 10. Choose devopsdays2021-hashicorp-terasky ami and click select
 
@@ -88,7 +88,7 @@ export AWS_SECRET_ACCESS_KEY=""
 
 22. Type your username, email and password, agree and acknowledge T&S and Private Policy (if you agree and acknowledge) and click on "Create account"
 
-23. Check your email and peform email validation
+23. Check your email and perform email validation
 
 24. Click on "Start from scratch"
 
@@ -122,7 +122,7 @@ export AWS_SECRET_ACCESS_KEY=""
 
 39. Click on "Connect and Continue"
 
-40. Provde username and password for your github if asked
+40. Provide username and password for your github if asked
 
 41. Click on "Authorize <your  github  user>"
 
@@ -230,7 +230,7 @@ alias exit='echo "Are you insane?! Over my dead body"'
 
 ```
 
-***Note: To leave container press CTRL+D 5 times consecutivly***
+***Note: To leave container press CTRL+D 5 times consecutively***
 
 9. Inside container run copy and paste all the environment variable you've created earlier in your favorite editor
 
@@ -267,9 +267,9 @@ terraform apply
 
 2. Click on Variables
 
-3. Locate "HCP_CLIENT_ID" variable, click on "...", click on "Edit", replace the text "Provide me and make me sensetive" with value of HCP Client Id that was created earlier, check "Sensetive" checkbox and click on "Save Variable"
+3. Locate "HCP_CLIENT_ID" variable, click on "...", click on "Edit", replace the text "Provide me and make me sensitive" with value of HCP Client Id that was created earlier, check "Sensitive" checkbox and click on "Save Variable"
 
-4. Locate "HCP_CLIENT_SECRET" variable, click on "...", click on "Edit", replace the text "Provide me and make me sensetive" with value of HCP Client Secret that was created earlier, check "Sensetive" checkbox and click on "Save Variable"
+4. Locate "HCP_CLIENT_SECRET" variable, click on "...", click on "Edit", replace the text "Provide me and make me sensitive" with value of HCP Client Secret that was created earlier, check "Sensitive" checkbox and click on "Save Variable"
 
 5. Click on "Setting" in the top menu bar
 
@@ -287,7 +287,7 @@ bash -x varsets.sh
 
 9. Click on "DevOpsDays2021Workshop" variable set
 
-10. Locate "AWS_ACCESS_KEY_ID" and "AWS_SECRET_ACCESS_KEY" edit and replace the placeholders with proper values from your favorite browser, check "Sensetive" checkbox and "Save variable"
+10. Locate "AWS_ACCESS_KEY_ID" and "AWS_SECRET_ACCESS_KEY" edit and replace the placeholders with proper values from your favorite browser, check "Sensitive" checkbox and "Save variable"
 
 11. Locate "Workspaces" section on "Variable sets" Page, ensure "Apply to specific workspaces" selected and type "VPC","EKS","HCP" in "Find workspaces this variable set should be shared with".
 
@@ -313,7 +313,7 @@ bash -x varsets.sh
 
 ```
 
-2. Click enter everytime promp appears and follow the instructions
+2. Click enter every time prompt appears and follow the instructions
 
 ### Consul demo
 
@@ -325,7 +325,7 @@ bash -x varsets.sh
 
 ```
 
-2. Click enter everytime promp appears and follow the instructions
+2. Click enter every time prompt appears and follow the instructions
 
 ### Cts demo
 
@@ -337,7 +337,7 @@ bash -x varsets.sh
 
 ```
 
-2. Click enter everytime promp appears and follow the instructions
+2. Click enter every time prompt appears and follow the instructions
 
   
 
