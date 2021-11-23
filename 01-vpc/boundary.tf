@@ -28,23 +28,8 @@ resource "aws_security_group_rule" "allow_inbound_boundary" {
   security_group_id = module.vpc.default_security_group_id
 }
 
-data "aws_ami" "base" {
-  most_recent = true
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "name"
-    values = ["devopsdays2021-hashicorp-terasky-*"]
-  }
-}
-
-
 resource "aws_instance" "boundary" {
-  ami                         = "ami-09ee69100348d196a"
+  ami                         = "ami-0aebe9e96c7e821d0"
   instance_type               = "t3.micro"
   associate_public_ip_address = true
   vpc_security_group_ids      = [module.vpc.default_security_group_id]
